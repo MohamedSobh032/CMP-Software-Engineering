@@ -31,19 +31,50 @@ function fetchEmployees() {
 
 // TODO
 // add event listener to submit button
+const form = document.getElementById("employeeForm")
+form.addEventListener("submit", (ev) => {
+  
+  ev.preventDefault();
+  createEmployee();
+})
 
 // TODO
 // add event listener to delete button
 
 // TODO
-function createEmployee (){
+function createEmployee() {
+
   // get data from input field
+  const name = document.getElementById("name").value;
+  const id = document.getElementById("id").value;
+
   // send data to BE
+  fetch('http://localhost:3000/api/v1/employee', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      "name": name,
+      "id": id
+    }),
+  })
+  .then(response => {
+    if (!response.ok) {
+      response.json().then(errorData => {
+        console.log("Failed,", errorData.message);
+      });
+      return;
+    }
+  })
+  .catch(error => console.error(error))
+  
   // call fetchEmployees
+  fetchEmployees()
 }
 
 // TODO
-function deleteEmployee (){
+function deleteEmployee() {
   // get id
   // send id to BE
   // call fetchEmployees

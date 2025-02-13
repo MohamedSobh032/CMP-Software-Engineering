@@ -29,27 +29,22 @@ function fetchEmployees() {
     .catch(error => console.error(error))
 }
 
-// TODO
 // add event listener to submit button
 const form = document.getElementById("employeeForm")
-form.addEventListener("submit", (ev) => {
+form.addEventListener("submit", async (ev) => {
   
   ev.preventDefault();
-  createEmployee();
+  await createEmployee();
 })
 
-// TODO
-// add event listener to delete button
-
-// TODO
-function createEmployee() {
+async function createEmployee() {
 
   // get data from input field
   const name = document.getElementById("name").value;
   const id = document.getElementById("id").value;
 
   // send data to BE
-  fetch('http://localhost:3000/api/v1/employee', {
+  await fetch('http://localhost:3000/api/v1/employee', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -59,25 +54,60 @@ function createEmployee() {
       "id": id
     }),
   })
-  .then(response => {
-    if (!response.ok) {
-      response.json().then(errorData => {
-        console.log("Failed,", errorData.message);
-      });
+    .then(response => {
+      if (!response.ok) {
+        response.json().then(errorData => {
+          console.log("Failed,", errorData.message);
+        });
+        return;
+      }
+    })
+    .catch(error => {
+      console.error(error);
       return;
-    }
-  })
-  .catch(error => console.error(error))
+    })
   
   // call fetchEmployees
   fetchEmployees()
+  console.log(`Employee with name ${name}, and ID: ${id}, created successfully`)
 }
 
-// TODO
-function deleteEmployee() {
-  // get id
+
+// add event listener to delete button
+const table = document.getElementById('dataTable');
+table.addEventListener("click", async (ev) => {
+
+  // check if the clicked is a button
+  if (ev.target.tagName === 'BUTTON') {
+    const row = ev.target.closest('tr');
+    const id = row.cells[0].textContent;
+    await deleteEmployee(id);
+  }
+});
+
+async function deleteEmployee(id) {
+
   // send id to BE
+  await fetch(`http://localhost:3000/api/v1/employee/${id}`, {
+    method: "DELETE"
+  })
+    .then(response => {
+      if (!response.ok) {
+        response.json().then(errorData => {
+          console.log(`Failed to delete employee with ID ${id}:`, errorData.message);
+        });
+        return;
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      return;
+    })
+
   // call fetchEmployees
+  fetchEmployees()
+  console.log(`Employee with ID ${id} deleted successfully.`);
 }
+
 
 fetchEmployees()

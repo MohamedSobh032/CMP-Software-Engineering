@@ -30,21 +30,16 @@ function fetchEmployees() {
 }
 
 // add event listener to submit button
-const form = document.getElementById("employeeForm")
-form.addEventListener("submit", async (ev) => {
-  
-  ev.preventDefault();
-  await createEmployee();
-})
+document.getElementById("employeeForm").addEventListener("submit", (ev) => { ev.preventDefault(); createEmployee(); })
 
-async function createEmployee() {
+function createEmployee() {
 
   // get data from input field
   const name = document.getElementById("name").value;
   const id = document.getElementById("id").value;
 
   // send data to BE
-  await fetch('http://localhost:3000/api/v1/employee', {
+  fetch('http://localhost:3000/api/v1/employee', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -55,59 +50,48 @@ async function createEmployee() {
     }),
   })
     .then(response => {
+
       if (!response.ok) {
-        response.json().then(errorData => {
-          console.log("Failed,", errorData.message);
-        });
+        response.json().then(errorData => console.log(`Failed, ${errorData.message}`));
         return;
       }
+      // call fetchEmployees
+      fetchEmployees()
+      document.getElementById('employeeForm').reset();
+      console.log(`Employee with name ${name}, and ID: ${id}, created successfully`);
     })
-    .catch(error => {
-      console.error(error);
-      return;
-    })
-  
-  // call fetchEmployees
-  fetchEmployees()
-  console.log(`Employee with name ${name}, and ID: ${id}, created successfully`)
+    .catch(error => { console.error(error); return; })
 }
 
 
 // add event listener to delete button
-const table = document.getElementById('dataTable');
-table.addEventListener("click", async (ev) => {
+document.getElementById('dataTable').addEventListener("click", (ev) => {
 
   // check if the clicked is a button
   if (ev.target.tagName === 'BUTTON') {
     const row = ev.target.closest('tr');
     const id = row.cells[0].textContent;
-    await deleteEmployee(id);
+    deleteEmployee(id);
   }
 });
 
-async function deleteEmployee(id) {
+function deleteEmployee(id) {
 
   // send id to BE
-  await fetch(`http://localhost:3000/api/v1/employee/${id}`, {
+  fetch(`http://localhost:3000/api/v1/employee/${id}`, {
     method: "DELETE"
   })
     .then(response => {
+
       if (!response.ok) {
-        response.json().then(errorData => {
-          console.log(`Failed to delete employee with ID ${id}:`, errorData.message);
-        });
+        response.json().then(errorData => console.log(`Failed to delete employee with ID ${id}: ${errorData.message}`));
         return;
       }
+      // call fetchEmployees
+      fetchEmployees()
+      console.log(`Employee with ID ${id} deleted successfully.`);
     })
-    .catch(error => {
-      console.error(error);
-      return;
-    })
-
-  // call fetchEmployees
-  fetchEmployees()
-  console.log(`Employee with ID ${id} deleted successfully.`);
+    .catch(error => { console.error(error); return; })
 }
-
 
 fetchEmployees()
